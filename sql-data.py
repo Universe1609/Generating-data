@@ -51,24 +51,30 @@ def execute_query(connection, query, data=None):
         print(f"Ocurrio el siguiente error: {e}")
 
 def insert_users(connection, num_users):
+    success = True
     query = """
     INSERT INTO users (name, surname, age, init_date, email) VALUES (%s, %s, %s, %s, %s);
     """
-    for _ in range(num_users):
+    for user_index in range(num_users):
         name = fake.first_name()
         surname = fake.last_name()
         age = fake.random_int(min=18, max=80, step=1)
-        # Generate a random date between two dates
         start_date = datetime.date(2000, 1, 1)
         end_date = datetime.date.today()
         init_date = fake.date_between(start_date=start_date, end_date=end_date)
         email = fake.email()
         data = (name, surname, age, init_date, email)
         execute_query(connection, query, data)
+        if not execute_query(connection, query, data):
+            success = False
         
-    print("Se insertaron los datos con exito en la tabla users")
+    if success:
+        print("Se insertaron los datos con exito en la tabla users")
+    else:
+        print("Hubo un error al tratar de insertar los datos en la tabla users")
     
 def insert_posts(connection, num_posts, num_users):
+    success = True
     query = "INSERT INTO posts (title, description, user_id) VALUES (%s, %s, %s);"
     for user_index in range(num_posts):
         title = fake.sentence(nb_words=6)
@@ -76,8 +82,13 @@ def insert_posts(connection, num_posts, num_users):
         user_id = fake.random_int(min=1, max=num_users, step=1)
         data = (title, description, user_id)
         execute_query(connection, query, data)
+        if not execute_query(connection, query, data):
+            success = False
     
-    print("Se insertaron los datos con exito en la tabla posts")
+    if success:
+        print("Se insertaron los datos con exito en la tabla posts")
+    else:
+        print("Hubo un error al tratar de insertar los datos en la tabla posts")
 
 connection = create_connection(os.getenv("DB_HOSTER"), os.getenv("DB_USER"), os.getenv("DB_PASS"), os.getenv("DB_NAME"))
 
